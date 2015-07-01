@@ -6,6 +6,7 @@ import org.springframework.batch.item.ItemWriter
 import org.springframework.stereotype.Component
 import com.cucharitas.book.pojo.Book
 
+@Slf4j
 @Component('writer')
 public class BookItemWriter implements ItemWriter<Book>{
 

@@ -10,14 +10,12 @@ import org.springframework.core.env.Environment
 import org.springframework.core.io.ResourceLoader
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
-import org.springframework.integration.config.EnableIntegration
 
 
 import  javax.sql.DataSource
 
 @Configuration
 @EnableBatchProcessing
-@EnableIntegration
 @PropertySource("classpath:batch.properties")
 public class AppConfiguration{
 
