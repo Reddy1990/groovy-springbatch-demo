@@ -10,11 +10,16 @@ import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.core.step.tasklet.Tasklet
+import org.springframework.batch.core.configuration.annotation.StepScope
 
 import org.springframework.core.task.TaskExecutor
 import org.springframework.batch.core.partition.support.Partitioner
 import org.springframework.batch.core.partition.support.MultiResourcePartitioner
-import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler
+import org.springframework.batch.integration.partition.MessageChannelPartitionHandler
+
+import org.springframework.integration.core.MessagingTemplate
+import org.springframework.messaging.MessageChannel
+
 import org.springframework.batch.core.partition.PartitionHandler
 
 import org.springframework.core.io.support.ResourcePatternResolver
@@ -62,33 +67,43 @@ public class JobDefinitionConfiguration{
     @Autowired
     private TaskExecutor taskExecutor
 
-    Job philaeJob(Step unzipStep){
+    @Autowired
+    private Tasklet unzipFilesTasklet
+
+    @Autowired
+    private MessageChannel philaeStagingChannel
+
+    @Bean
+    Job philaeJob(){
         jobs.get("philaeJob")
-        .start(unzipStep)
+        .start(unzipStep())
+        .next(partitionerStep())
         .build()
     }
 
-    Step unzipStep(Tasklet unzipFilesTasklet){
+    @Bean
+    Step unzipStep(){
         steps.get("unzipFiles")
         .tasklet(unzipFilesTasklet)
-        .next(readWriteFilesStep)
         .build()
     }
 
-    Step partitionerStep(Step readWriteFilesStep){
+    @Bean
+    Step partitionerStep(){
         steps.get("masterStep")
-        .partition(readWriteFilesStep)
-        .partition("readWriteFiles", partitioner())
-        .end()
+        .partitioner("readWriteFiles", partitioner())
+        .partitionHandler(partitionHandler())
         .build()
     }
 
+    @Bean
     Step readWriteFilesStep() {
         steps.get("readWriteFiles")
         .<PhilaeData, PhilaeData>chunk(10)
         .reader(reader)
         .processor(processor)
         .writer(writer)
+        .taskExecutor(taskExecutor)
         .build()
     }
 
@@ -110,14 +125,18 @@ public class JobDefinitionConfiguration{
 
     @Bean
     PartitionHandler partitionHandler() {
-        TaskExecutorPartitionHandler partitionHandler = new TaskExecutorPartitionHandler()
+        MessageChannelPartitionHandler partitionHandler = new MessageChannelPartitionHandler()
+        MessagingTemplate messagingTemplate = new MessagingTemplate()
 
-        partitionHandler.setGridSize(4)
-        partitionHandler.setTaskExecutor(taskExecutor)
-        partitionHandler.setStep(readWriteFilesStep())
+        messagingTemplate.setDefaultChannel(philaeStagingChannel)
+
+        partitionHandler.setGridSize(8)
+        partitionHandler.setStepName("readWriteFiless")
+        partitionHandler.setMessagingOperations(messagingTemplate)
 
         partitionHandler
     }
+
 
     @Bean
     ConnectionFactory connectionFactory() {
