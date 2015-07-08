@@ -7,17 +7,17 @@
 		http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <int:channel id="philae.workerChannel"/>
-    <int-jms:inbound-gateway request-channel="philae.workerChannel"
-                             request-destination-name="philae.requestsQueue"
+    <int:channel id="philaeWorkerChannel"/>
+    <int-jms:inbound-gateway request-channel="philaeWorkerChannel"
+                             request-destination-name="philaeRequestsQueue"
                              concurrent-consumers="10" />
 
     <int:service-activator ref="stepExecutionRequestHandler"
-                           input-channel="philae.workerChannel"/>
+                           input-channel="philaeWorkerChannel"/>
 
     <bean id="stepExecutionRequestHandler" class="org.springframework.batch.integration.partition.StepExecutionRequestHandler">
         <property name="jobExplorer" ref="jobExplorer"/>
-        <property name="stepLocator" ref="styx-full-load-job-stepLocator"/>
+        <property name="stepLocator" ref="stepLocator"/>
     </bean>
 
     <bean id="stepLocator" class="org.springframework.batch.integration.partition.BeanFactoryStepLocator" />

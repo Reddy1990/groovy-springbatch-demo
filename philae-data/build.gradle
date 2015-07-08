@@ -19,13 +19,17 @@ dependencies {
     compile 'org.codehaus.groovy:groovy:2.2.1:indy'
 
     compile "org.springframework.batch:spring-batch-core:$BATCH_VERSION"
+    compile 'org.springframework.batch:spring-batch-integration:3.0.4.RELEASE'
+
 	compile "org.springframework:spring-context:$SPRING_VERSION"
 	compile "org.springframework:spring-tx:$SPRING_VERSION"
 	compile "org.springframework:spring-jdbc:$SPRING_VERSION"
 	compile "org.springframework:spring-jms:$SPRING_VERSION"
 	compile "org.springframework:spring-messaging:$SPRING_VERSION"
+
 	compile "org.springframework.integration:spring-integration-core:$SPRING_INTEGRATION_VERSION"
 	compile "org.springframework.integration:spring-integration-jms:$SPRING_INTEGRATION_VERSION"
+
     compile "org.apache.commons:commons-compress:1.9"
     compile "org.apache.commons:commons-io:1.3.2"
     compile "org.apache.activemq:activemq-broker:5.11.1"

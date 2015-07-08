@@ -10,22 +10,22 @@
     <task:executor id="taskExecutor"
         pool-size="10" />
 
-    <int-jms:outbound-gateway request-channel="philae.requestsChannel"
-        request-destination-name="philae.requestsQueue"
-        reply-channel="philae.stagingChannel"
+    <int-jms:outbound-gateway request-channel="philaeRequestsChannel"
+        request-destination-name="philaeRequestsQueue"
+        reply-channel="philaeStagingChannel"
         receive-timeout="1000">
 
         <int:poller fixed-rate="200" task-executor="taskExecutor" />
 
     </int-jms:outbound-gateway>
 
-    <int:channel id="philae.requestsChannel">
+    <int:channel id="philaeRequestsChannel">
         <int:queue />
     </int:channel>
 
-    <int:channel id="philae.stagingChannel" />
+    <int:channel id="philaeStagingChannel" />
 
     <int:aggregator ref="partitionHandler"
-        input-channel="philae.stagingChannel" />
+        input-channel="philaeStagingChannel" />
 
 </beans>
